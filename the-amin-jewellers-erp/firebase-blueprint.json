@@ -1,0 +1,190 @@
+{
+  "entities": {
+    "StockItem": {
+      "title": "StockItem",
+      "description": "An item in the jewelry stock inventory.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "nameBangla": { "type": "string" },
+        "nameEnglish": { "type": "string" },
+        "category": { "type": "string" },
+        "karat": { "type": "string" },
+        "weight": { "type": "number" },
+        "traditionalWeight": {
+          "type": "object",
+          "properties": {
+            "vori": { "type": "number" },
+            "ana": { "type": "number" },
+            "roti": { "type": "number" },
+            "point": { "type": "number" }
+          }
+        },
+        "count": { "type": "number" },
+        "minLimit": { "type": "number" },
+        "makingCharge": { "type": "number" },
+        "status": { "type": "string", "enum": ["available", "booked", "sold"] },
+        "date": { "type": "string" },
+        "image": { "type": "string" }
+      },
+      "required": ["id", "code", "nameBangla", "karat", "weight"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer order for jewelry.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "itemName": { "type": "string" },
+        "weight": { "type": "number" },
+        "advanceAmount": { "type": "number" },
+        "dueAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "completed"] },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "customerName", "itemName", "weight"]
+    },
+    "Memo": {
+      "title": "Memo",
+      "description": "A sales memo for a customer.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerMobile": { "type": "string" },
+        "date": { "type": "string" },
+        "items": { "type": "array" },
+        "subTotal": { "type": "number" },
+        "vatTotal": { "type": "number" },
+        "discountTotal": { "type": "number" },
+        "grandTotal": { "type": "number" }
+      },
+      "required": ["id", "customerName", "customerMobile", "date", "grandTotal"]
+    },
+    "Mortgage": {
+      "title": "Mortgage",
+      "description": "A mortgage or loan record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "receiptNo": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerMobile": { "type": "string" },
+        "customerAddress": { "type": "string" },
+        "itemName": { "type": "string" },
+        "itemPhoto": { "type": "string" },
+        "karat": { "type": "string" },
+        "weight": { "type": "number" },
+        "traditionalWeight": { "type": "object" },
+        "principalAmount": { "type": "number" },
+        "originalPrincipal": { "type": "number" },
+        "paidPrincipal": { "type": "number" },
+        "interestRate": { "type": "number" },
+        "collectedInterest": { "type": "number" },
+        "monthsCount": { "type": "number" },
+        "startDate": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "remarks": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "redeemed", "expired"] },
+        "payments": { "type": "array" }
+      },
+      "required": ["id", "receiptNo", "customerName", "principalAmount", "startDate"]
+    },
+    "Artisan": {
+      "title": "Artisan",
+      "description": "A goldsmith artisan.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "mobile": { "type": "string" },
+        "specialty": { "type": "string" },
+        "goldBalance": { "type": "number" },
+        "wageBalance": { "type": "number" }
+      },
+      "required": ["id", "name", "mobile"]
+    },
+    "ArtisanJob": {
+      "title": "ArtisanJob",
+      "description": "A job assigned to an artisan.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "artisanId": { "type": "string" },
+        "itemName": { "type": "string" },
+        "karat": { "type": "string" },
+        "givenWeight": { "type": "number" },
+        "returnedWeight": { "type": "number" },
+        "wastage": { "type": "number" },
+        "wage": { "type": "number" },
+        "paidWage": { "type": "number" },
+        "voucherNo": { "type": "string" },
+        "date": { "type": "string" },
+        "completedDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "completed"] },
+        "remarks": { "type": "string" }
+      },
+      "required": ["id", "artisanId", "itemName", "givenWeight", "wage"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user profile.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string" },
+        "shopName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "GoldRate": {
+      "title": "GoldRate",
+      "description": "Gold market rates.",
+      "type": "object",
+      "properties": {
+        "karat": { "type": "string" },
+        "rate": { "type": "number" }
+      },
+      "required": ["karat", "rate"]
+    }
+  },
+  "firestore": {
+    "/users": {
+      "schema": "User",
+      "description": "Collection of user profiles."
+    },
+    "/goldRates": {
+      "schema": "GoldRate",
+      "description": "Collection of gold rates."
+    },
+    "/stock": {
+      "schema": "StockItem",
+      "description": "Collection of stock items."
+    },
+    "/orders": {
+      "schema": "Order",
+      "description": "Collection of customer orders."
+    },
+    "/memos": {
+      "schema": "Memo",
+      "description": "Collection of sales memos."
+    },
+    "/mortgages": {
+      "schema": "Mortgage",
+      "description": "Collection of mortgage records."
+    },
+    "/artisans": {
+      "schema": "Artisan",
+      "description": "Collection of artisans."
+    },
+    "/artisan_jobs": {
+      "schema": "ArtisanJob",
+      "description": "Collection of jobs assigned to artisans."
+    }
+  }
+}

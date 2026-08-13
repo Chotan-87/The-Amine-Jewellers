@@ -1,0 +1,9 @@
+{
+  "name": "The Amin Jewellers ERP",
+  "description": "A specialized ERP dashboard for jewelry shops, tracking gold rates, stock, and orders with a focus on traditional Bengali measurement units.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,144 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Master Gate: Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3: Primitive Definition
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Phase 2: Validation Blueprints
+    function isValidStockItem(data) {
+      return data.keys().hasAll(['id', 'code', 'nameBangla', 'karat', 'weight'])
+        && data.id is string && data.id.size() <= 128
+        && data.code is string && data.code.size() <= 64
+        && data.nameBangla is string && data.nameBangla.size() <= 256
+        && data.karat is string && data.karat.size() <= 32
+        && data.weight is number && data.weight >= 0;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['id', 'customerName', 'itemName', 'weight'])
+        && data.id is string && data.id.size() <= 128
+        && data.customerName is string && data.customerName.size() <= 256
+        && data.itemName is string && data.itemName.size() <= 256
+        && data.weight is number && data.weight >= 0;
+    }
+
+    function isValidMemo(data) {
+      return data.keys().hasAll(['id', 'customerName', 'customerMobile', 'date', 'grandTotal'])
+        && data.id is string && data.id.size() <= 128
+        && data.customerName is string && data.customerName.size() <= 256
+        && data.customerMobile is string && data.customerMobile.size() <= 32
+        && data.date is string && data.date.size() <= 32
+        && data.grandTotal is number && data.grandTotal >= 0;
+    }
+
+    function isValidMortgage(data) {
+      return data.keys().hasAll(['id', 'receiptNo', 'customerName', 'principalAmount', 'startDate'])
+        && data.id is string && data.id.size() <= 128
+        && data.receiptNo is string && data.receiptNo.size() <= 64
+        && data.customerName is string && data.customerName.size() <= 256
+        && data.principalAmount is number && data.principalAmount >= 0
+        && data.startDate is string && data.startDate.size() <= 32;
+    }
+
+    function isValidArtisan(data) {
+      return data.keys().hasAll(['id', 'name', 'mobile'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 256
+        && data.mobile is string && data.mobile.size() <= 32;
+    }
+
+    function isValidArtisanJob(data) {
+      return data.keys().hasAll(['id', 'artisanId', 'itemName', 'givenWeight', 'wage'])
+        && data.id is string && data.id.size() <= 128
+        && data.artisanId is string && data.artisanId.size() <= 128
+        && data.itemName is string && data.itemName.size() <= 256
+        && data.givenWeight is number && data.givenWeight >= 0
+        && data.wage is number && data.wage >= 0;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email'])
+        && data.uid is string && data.uid.size() <= 128
+        && data.email is string && data.email.size() <= 128;
+    }
+
+    function isValidGoldRate(data) {
+      return data.keys().hasAll(['karat', 'rate'])
+        && data.karat is string && data.karat.size() <= 64
+        && data.rate is number && data.rate >= 0;
+    }
+
+    // Phase 4: Match Blocks
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming());
+      allow update: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming());
+    }
+
+    match /goldRates/{rateId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidGoldRate(incoming());
+    }
+
+    match /stock/{itemId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(itemId) && isValidStockItem(incoming()) && itemId == incoming().id;
+      allow update: if isSignedIn() && isValidId(itemId) && isValidStockItem(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming()) && orderId == incoming().id;
+      allow update: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    match /memos/{memoId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(memoId) && isValidMemo(incoming()) && memoId == incoming().id;
+      allow update: if isSignedIn() && isValidId(memoId) && isValidMemo(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    match /mortgages/{mortgageId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(mortgageId) && isValidMortgage(incoming()) && mortgageId == incoming().id;
+      allow update: if isSignedIn() && isValidId(mortgageId) && isValidMortgage(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    match /artisans/{artisanId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(artisanId) && isValidArtisan(incoming()) && artisanId == incoming().id;
+      allow update: if isSignedIn() && isValidId(artisanId) && isValidArtisan(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    match /artisan_jobs/{jobId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(jobId) && isValidArtisanJob(incoming()) && jobId == incoming().id;
+      allow update: if isSignedIn() && isValidId(jobId) && isValidArtisanJob(incoming());
+      allow delete: if isSignedIn();
+    }
+  }
+}
